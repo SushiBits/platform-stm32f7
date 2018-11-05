@@ -1,7 +1,7 @@
 /*
- * cortex-m7.ld
+ * stm32f7.ld
  *
- *  Created on: Dec 4, 2017
+ *  Created on: Nov 5, 2018
  *      Author: technix
  */
 
@@ -21,7 +21,7 @@ SECTIONS
 		KEEP(*(.vector))
 		ASSERT(. != __vector_start, "The interrupt vector is missing.");
 		. = ALIGN(4);
-	} > IRAM AT > IROM
+	} > ITCM AT > IROM
 	
 	/* Now comes the bulk of the application code in Flash. */
 	.text :
@@ -56,6 +56,10 @@ SECTIONS
 		LONG(LOADADDR(.data));
 		LONG(ADDR(.data));
 		LONG(SIZEOF(.data));
+		
+		LONG(LOADADDR(.ccm));
+		LONG(ADDR(.ccm));
+		LONG(SIZEOF(.ccm));
 	} > IROM
 	
 	.zerotable :
@@ -128,12 +132,16 @@ SECTIONS
      * volatile memory locations but have a copy of their contents stored in
      * Flash. Instead of the usual sidata symbol, the GNU LD LOADADDR() is used to.
      */
+     
+    .ccm :
+    {
+        *(vtable)
+        *(.ccm*)
+    } > DTCM AT > IROM
     
     .data :
     {
-		*(vtable)
 		*(.data*)
-		*(.ccm*)
 		. = ALIGN(4);
     } > IRAM AT > IROM
     
@@ -147,6 +155,6 @@ SECTIONS
     } > IRAM
 	
     /* Stack */
-    PROVIDE(__stack = ORIGIN(IRAM) + LENGTH(IRAM));
-    PROVIDE(__heap_end = 0);
+    PROVIDE(__stack = ORIGIN(DTCM) + LENGTH(DTCM));
+    PROVIDE(__heap_end = ORIGIN(IRAM) + LENGTH(IRAM));
 }

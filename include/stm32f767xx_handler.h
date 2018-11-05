@@ -2,7 +2,7 @@
 
 #ifndef IRQN_HANDLER
 
-#include <stm32f7xx_handler.h>
+#include <stm32f7xx_it.h>
 
 #else
 
